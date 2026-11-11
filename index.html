@@ -4,15 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>全球即時匯率換算器</title>
-<!-- 行動裝置與 PWA 支援 -->
+
+<!-- PWA 設定與圖示宣告 -->
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="https://placehold.co/192x192/4f46e5/ffffff?text=FX">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="全球換匯">
 <meta name="theme-color" content="#4f46e5">
+
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Font Awesome 圖示庫 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 body {
@@ -33,6 +38,7 @@ input {
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between pb-24 md:pb-8">
+
 <!-- 頂部導航列 -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
   <div class="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
@@ -66,6 +72,7 @@ input {
       </h3>
       <button onclick="closeInstallModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
+    
     <!-- Android 安裝指引 -->
     <div id="androidGuide" class="text-xs text-slate-600 space-y-3">
       <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl font-medium">
@@ -77,13 +84,14 @@ input {
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
-        選單中點選 <strong>「加到主畫面」</strong> 或 <strong>「安裝應用程式」</strong>。
+        選單中點選 <strong>「安裝應用程式」</strong> 或 <strong>「加到主畫面」</strong>。
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
         點擊 <strong>「安裝」</strong>，桌面就會出現獨立換匯 App！
       </p>
     </div>
+    
     <!-- iOS 安裝指引 -->
     <div id="iosGuide" class="text-xs text-slate-600 space-y-3 hidden">
       <div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-2.5 rounded-xl font-medium">
@@ -102,6 +110,7 @@ input {
         點擊右上角 <strong>「新增」</strong> 即可在桌面開啟！
       </p>
     </div>
+    
     <button id="directInstallBtn" onclick="triggerNativeInstall()" class="hidden w-full bg-indigo-600 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md">
       直接一鍵安裝至桌面
     </button>
@@ -113,7 +122,7 @@ input {
 
 <!-- 主要內容區 -->
 <main class="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-grow">
-  <!-- 分類按鈕與連線狀態 -->
+  <!-- 分類按鈕與狀態 -->
   <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
     <div class="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold text-slate-600">
       <button id="btnFilterAll" onclick="filterCurrency('all')" class="px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold">全部貨幣</button>
@@ -240,7 +249,7 @@ input {
           </div>
           <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
             <span id="txtInverse">1 USD ≈ 0.00 TWD</span>
-            <span class="text-emerald-600 font-semibold flex items-center gap-1" id="rateSourceText">
+            <span class="text-emerald-600 font-semibold flex items-center gap-1">
               <i class="fa-solid fa-circle-check"></i> <span id="rateSourceLabel">即時市場匯率</span>
             </span>
           </div>
@@ -361,7 +370,6 @@ var updateTimeTag = document.getElementById('updateTimeTag');
 var statusDot = document.getElementById('statusDot');
 var rateSourceLabel = document.getElementById('rateSourceLabel');
 
-// 格式化數字
 function fmtNum(n, d) {
   d = d || 4;
   if (isNaN(n) || n === null) return '0.00';
@@ -374,7 +382,6 @@ function fmtNum(n, d) {
   }
 }
 
-// 換算：根據輸入的持有幣別換算目標幣別
 function calcFrom() {
   var fCode = selFrom.value;
   var tCode = selTo.value;
@@ -398,7 +405,6 @@ function calcFrom() {
   txtInverse.textContent = '1 ' + tCode + ' ≈ ' + fmtNum(oneTToF, 4) + ' ' + fCode;
 }
 
-// 換算：根據輸入的目標幣別反推所需持有金額
 function calcTo() {
   var fCode = selFrom.value;
   var tCode = selTo.value;
@@ -547,26 +553,23 @@ function renderRatesTable() {
   });
 }
 
-// 串接免費免金鑰的即時匯率 API (ExchangeRate-API Open Access)
+// 串接開放即時匯率 API
 async function refreshRates(isManual) {
   var icon = document.getElementById('refreshIcon');
   if (icon) icon.classList.add('fa-spin');
 
   try {
-    // 請求 USD 為基準的開放即時匯率
     var res = await fetch('https://open.er-api.com/v6/latest/USD');
     if (!res.ok) throw new Error('匯率 API 回應失敗');
     var data = await res.json();
 
     if (data && data.rates) {
-      // 將 API 抓到的最新對應數值更新進 ratesData
       Object.keys(ratesData).forEach(function(code) {
         if (data.rates[code]) {
           ratesData[code].rate = data.rates[code];
         }
       });
 
-      // 快取儲存
       localStorage.setItem('cached_fx_rates', JSON.stringify({
         rates: data.rates,
         timestamp: Date.now()
@@ -579,8 +582,7 @@ async function refreshRates(isManual) {
       rateSourceLabel.textContent = '即時市場匯率 (已更新)';
     }
   } catch (err) {
-    console.warn('API 抓取異常，改用快取或離線牌價：', err);
-    // 嘗試讀取本地快取
+    console.warn('API 抓取異常，改用快取或備援牌價：', err);
     var cached = localStorage.getItem('cached_fx_rates');
     if (cached) {
       try {
@@ -678,12 +680,24 @@ function triggerNativeInstall() {
   closeInstallModal();
 }
 
-// 啟動初始化執行
+// 註冊 Service Worker (使用相對路徑以適配 GitHub Pages 子目錄)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(reg) {
+        console.log('SW 註冊成功，範圍：', reg.scope);
+      })
+      .catch(function(err) {
+        console.warn('SW 註冊失敗：', err);
+      });
+  });
+}
+
+// 初始化
 window.addEventListener('DOMContentLoaded', function() {
   onFromChange();
   onToChange();
   renderRatesTable();
-  // 載入即連線更新即時牌價
   refreshRates(false);
 });
 </script>
