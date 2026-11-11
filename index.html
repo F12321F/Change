@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>全球即時匯率換算器</title>
 
-<!-- PWA 設定與圖示宣告 -->
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="https://placehold.co/192x192/4f46e5/ffffff?text=FX">
+<!-- 行動裝置與主畫面支援 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="全球換匯">
@@ -52,12 +50,12 @@ input {
       </div>
     </div>
     <div class="flex items-center space-x-2">
-      <button onclick="refreshRates(true)" class="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all active:scale-95">
+      <button onclick="refreshRates()" class="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all active:scale-95">
         <i class="fa-solid fa-rotate" id="refreshIcon"></i>
-        <span class="hidden sm:inline">更新匯率</span>
+        <span class="hidden sm:inline">更新</span>
       </button>
       <button onclick="openInstallModal()" class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 active:scale-95 transition-all">
-        <i class="fa-solid fa-mobile-screen-button"></i> 安裝 App
+        <i class="fa-solid fa-mobile-screen-button"></i> App指引
       </button>
     </div>
   </div>
@@ -67,16 +65,16 @@ input {
 <div id="installModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4 hidden">
   <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
     <div class="flex justify-between items-center">
-      <h3 id="modalTitle" class="font-bold text-slate-900 flex items-center gap-2">
+      <h3 id="modalTitle" class="font-bold text-slate-900 flex items-center gap-2 text-base">
         <i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟
       </h3>
       <button onclick="closeInstallModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
     
-    <!-- Android 安裝指引 -->
+    <!-- Android 指引 -->
     <div id="androidGuide" class="text-xs text-slate-600 space-y-3">
       <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl font-medium">
-        安卓手機請照以下 3 步即可放上主畫面：
+        安卓手機請照以下 3 步即可放上桌面：
       </div>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
@@ -84,15 +82,15 @@ input {
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
-        選單中點選 <strong>「安裝應用程式」</strong> 或 <strong>「加到主畫面」</strong>。
+        選單中點選 <strong>「加到主畫面」</strong> 或 <strong>「建立捷徑」</strong>。
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
-        點擊 <strong>「安裝」</strong>，桌面就會出現獨立換匯 App！
+        點擊 <strong>「新增」</strong>，桌面就會出現獨立換匯 App！
       </p>
     </div>
     
-    <!-- iOS 安裝指引 -->
+    <!-- iOS 指引 -->
     <div id="iosGuide" class="text-xs text-slate-600 space-y-3 hidden">
       <div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-2.5 rounded-xl font-medium">
         iPhone 請使用 Safari 瀏覽器依照以下步驟加入：
@@ -103,18 +101,15 @@ input {
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
-        選擇 <strong>「加入主畫面 (<i class="fa-regular fa-square-plus"></i>)」</strong>。
+        在選單中向下滑動，選擇 <strong>「加入主畫面」</strong>。
       </p>
       <p class="flex items-center gap-2">
         <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
-        點擊右上角 <strong>「新增」</strong> 即可在桌面開啟！
+        點擊右上角 <strong>「新增」</strong>，即可享受無網址列邊框的體驗！
       </p>
     </div>
     
-    <button id="directInstallBtn" onclick="triggerNativeInstall()" class="hidden w-full bg-indigo-600 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md">
-      直接一鍵安裝至桌面
-    </button>
-    <button onclick="closeInstallModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs">
+    <button onclick="closeInstallModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md transition-colors">
       我知道了
     </button>
   </div>
@@ -334,7 +329,7 @@ input {
 </nav>
 
 <script>
-// 基礎幣別設定與預設離線參考牌價
+// 基礎幣別設定
 var ratesData = {
   TWD: { name: '新台幣', region: 'asia', flag: '🇹🇼', symbol: 'NT$', rate: 32.15 },
   JPY: { name: '日圓', region: 'asia', flag: '🇯🇵', symbol: '¥', rate: 153.80 },
@@ -553,14 +548,14 @@ function renderRatesTable() {
   });
 }
 
-// 串接開放即時匯率 API
-async function refreshRates(isManual) {
+// 串接即時匯率 API
+async function refreshRates() {
   var icon = document.getElementById('refreshIcon');
   if (icon) icon.classList.add('fa-spin');
 
   try {
     var res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if (!res.ok) throw new Error('匯率 API 回應失敗');
+    if (!res.ok) throw new Error('API 失敗');
     var data = await res.json();
 
     if (data && data.rates) {
@@ -582,7 +577,6 @@ async function refreshRates(isManual) {
       rateSourceLabel.textContent = '即時市場匯率 (已更新)';
     }
   } catch (err) {
-    console.warn('API 抓取異常，改用快取或備援牌價：', err);
     var cached = localStorage.getItem('cached_fx_rates');
     if (cached) {
       try {
@@ -590,10 +584,10 @@ async function refreshRates(isManual) {
         Object.keys(ratesData).forEach(function(code) {
           if (parsed.rates[code]) ratesData[code].rate = parsed.rates[code];
         });
-        updateTimeTag.textContent = '快取匯率 (離線可用)';
+        updateTimeTag.textContent = '快取匯率 (離線)';
       } catch (e) {}
     } else {
-      updateTimeTag.textContent = '基準牌價 (離線備援)';
+      updateTimeTag.textContent = '基準牌價 (離線)';
     }
     statusDot.className = 'w-2 h-2 rounded-full bg-amber-500';
     rateSourceLabel.textContent = '基準參考牌價';
@@ -627,40 +621,20 @@ function switchTab(t) {
   }
 }
 
-// 智慧判斷安裝環境
-var installEvent = null;
+// 彈窗指引控制（純指引，絕不觸發系統報錯框）
 var userAgent = navigator.userAgent || navigator.vendor || window.opera || '';
 var isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  installEvent = e;
-  var directBtn = document.getElementById('directInstallBtn');
-  if (directBtn) directBtn.classList.remove('hidden');
-});
-
 function openInstallModal() {
-  if (installEvent) {
-    installEvent.prompt();
-    installEvent.userChoice.then(function(choice) {
-      if (choice.outcome === 'accepted') {
-        installEvent = null;
-      }
-    });
-    return;
-  }
-
   var m = document.getElementById('installModal');
   var title = document.getElementById('modalTitle');
   var andGuide = document.getElementById('androidGuide');
   var iosGuide = document.getElementById('iosGuide');
-  var directBtn = document.getElementById('directInstallBtn');
 
   if (isIOSDevice) {
-    title.innerHTML = '<i class="fa-brands fa-apple text-slate-900 text-lg"></i> iPhone / iPad 安裝步驟';
+    title.innerHTML = '<i class="fa-brands fa-apple text-slate-900 text-lg"></i> 安裝至 iPhone / iPad';
     iosGuide.classList.remove('hidden');
     andGuide.classList.add('hidden');
-    if (directBtn) directBtn.classList.add('hidden');
   } else {
     title.innerHTML = '<i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟';
     andGuide.classList.remove('hidden');
@@ -673,32 +647,12 @@ function closeInstallModal() {
   document.getElementById('installModal').classList.add('hidden');
 }
 
-function triggerNativeInstall() {
-  if (installEvent) {
-    installEvent.prompt();
-  }
-  closeInstallModal();
-}
-
-// 註冊 Service Worker (使用相對路徑以適配 GitHub Pages 子目錄)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js')
-      .then(function(reg) {
-        console.log('SW 註冊成功，範圍：', reg.scope);
-      })
-      .catch(function(err) {
-        console.warn('SW 註冊失敗：', err);
-      });
-  });
-}
-
 // 初始化
 window.addEventListener('DOMContentLoaded', function() {
   onFromChange();
   onToChange();
   renderRatesTable();
-  refreshRates(false);
+  refreshRates();
 });
 </script>
 </body>
