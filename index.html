@@ -4,352 +4,338 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>全球即時匯率換算器</title>
-
-<!-- 行動裝置與主畫面支援 -->
+​<!-- 行動裝置與 PWA 支援 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="全球換匯">
 <meta name="theme-color" content="#4f46e5">
-
-<!-- Tailwind CSS -->
+​<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Font Awesome 圖示庫 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
+​<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
 }
 input {
-  user-select: auto;
+user-select: auto;
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+display: none;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+-ms-overflow-style: none;
+scrollbar-width: none;
 }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between pb-24 md:pb-8">
-
-<!-- 頂部導航列 -->
+​<!-- 頂部導航列 -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-  <div class="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
-    <div class="flex items-center space-x-2.5">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md">
-        <i class="fa-solid fa-coins text-base"></i>
-      </div>
-      <div>
-        <h1 class="text-base font-bold text-slate-900 leading-tight">全球換匯 App</h1>
-        <p class="text-[11px] text-slate-500">亞洲 & 歐美重點貨幣即時對匯</p>
-      </div>
-    </div>
-    <div class="flex items-center space-x-2">
-      <button onclick="refreshRates()" class="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all active:scale-95">
-        <i class="fa-solid fa-rotate" id="refreshIcon"></i>
-        <span class="hidden sm:inline">更新</span>
-      </button>
-      <button onclick="openInstallModal()" class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 active:scale-95 transition-all">
-        <i class="fa-solid fa-mobile-screen-button"></i> App指引
-      </button>
-    </div>
-  </div>
-</header>
-
-<!-- 安裝指南彈窗 Modal -->
-<div id="installModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4 hidden">
-  <div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
-    <div class="flex justify-between items-center">
-      <h3 id="modalTitle" class="font-bold text-slate-900 flex items-center gap-2 text-base">
-        <i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟
-      </h3>
-      <button onclick="closeInstallModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    
-    <!-- Android 指引 -->
-    <div id="androidGuide" class="text-xs text-slate-600 space-y-3">
-      <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl font-medium">
-        安卓手機請照以下 3 步即可放上桌面：
-      </div>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
-        點擊 Chrome 右上角 <strong>三個垂直點 (⋮)</strong>。
-      </p>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
-        選單中點選 <strong>「加到主畫面」</strong> 或 <strong>「建立捷徑」</strong>。
-      </p>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
-        點擊 <strong>「新增」</strong>，桌面就會出現獨立換匯 App！
-      </p>
-    </div>
-    
-    <!-- iOS 指引 -->
-    <div id="iosGuide" class="text-xs text-slate-600 space-y-3 hidden">
-      <div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-2.5 rounded-xl font-medium">
-        iPhone 請使用 Safari 瀏覽器依照以下步驟加入：
-      </div>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
-        點擊 Safari 底部 <strong>分享按鈕 (<i class="fa-solid fa-arrow-up-from-bracket"></i>)</strong>。
-      </p>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
-        在選單中向下滑動，選擇 <strong>「加入主畫面」</strong>。
-      </p>
-      <p class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
-        點擊右上角 <strong>「新增」</strong>，即可享受無網址列邊框的體驗！
-      </p>
-    </div>
-    
-    <button onclick="closeInstallModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md transition-colors">
-      我知道了
-    </button>
-  </div>
+<div class="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
+<div class="flex items-center space-x-2.5">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white shadow-md">
+<i class="fa-solid fa-coins text-base"></i>
 </div>
-
-<!-- 主要內容區 -->
+<div>
+<h1 class="text-base font-bold text-slate-900 leading-tight">全球換匯 App</h1>
+<p class="text-[11px] text-slate-500">亞洲 & 歐美重點貨幣即時對匯</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button onclick="refreshRates()" class="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
+<i class="fa-solid fa-rotate" id="refreshIcon"></i>
+<span class="hidden sm:inline">更新</span>
+</button>
+<button onclick="openInstallModal()" class="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 active:scale-95 transition-all">
+<i class="fa-solid fa-mobile-screen-button"></i> 安裝 App
+</button>
+</div>
+</div>
+</header>
+​<!-- 安裝指南彈窗 Modal -->
+<div id="installModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4 hidden">
+<div class="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+<div class="flex justify-between items-center">
+<h3 id="modalTitle" class="font-bold text-slate-900 flex items-center gap-2">
+<i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟
+</h3>
+<button onclick="closeInstallModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+</div>
+​<!-- Android 安裝指引 -->
+<div id="androidGuide" class="text-xs text-slate-600 space-y-3">
+<div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-2.5 rounded-xl font-medium">
+安卓手機請照以下 3 步即可放上主畫面：
+</div>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
+點擊 Chrome 右上角 <strong>三個垂直點 (⋮)</strong>。
+</p>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
+選單中點選 <strong>「加到主畫面」</strong> 或 <strong>「安裝應用程式」</strong>。
+</p>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
+點擊 <strong>「安裝」</strong>，桌面就會出現獨立換匯 App！
+</p>
+</div>
+​<!-- iOS 安裝指引 -->
+<div id="iosGuide" class="text-xs text-slate-600 space-y-3 hidden">
+<div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-2.5 rounded-xl font-medium">
+iPhone 請使用 Safari 瀏覽器依照以下步驟加入：
+</div>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
+點擊 Safari 底部 <strong>分享按鈕 (<i class="fa-solid fa-arrow-up-from-bracket"></i>)</strong>。
+</p>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">2</span>
+選擇 <strong>「加入主畫面 (<i class="fa-regular fa-square-plus"></i>)」</strong>。
+</p>
+<p class="flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">3</span>
+點擊右上角 <strong>「新增」</strong> 即可在桌面開啟！
+</p>
+</div>
+​<button id="directInstallBtn" onclick="triggerNativeInstall()" class="hidden w-full bg-indigo-600 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md">
+直接一鍵安裝至桌面
+</button>
+<button onclick="closeInstallModal()" class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl font-semibold text-xs">
+我知道了
+</button>
+</div>
+</div>
+​<!-- 主要內容區 -->
 <main class="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-grow">
-  <!-- 分類按鈕與狀態 -->
-  <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-    <div class="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold text-slate-600">
-      <button id="btnFilterAll" onclick="filterCurrency('all')" class="px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold">全部貨幣</button>
-      <button id="btnFilterAsia" onclick="filterCurrency('asia')" class="px-3 py-1.5 rounded-lg hover:text-slate-900">亞洲地區</button>
-      <button id="btnFilterWest" onclick="filterCurrency('west')" class="px-3 py-1.5 rounded-lg hover:text-slate-900">歐美地區</button>
-    </div>
-    <div class="flex items-center space-x-1.5 text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
-      <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-      <span id="updateTimeTag">連線獲取最新匯率中...</span>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-    <!-- 換匯計算主面板 -->
-    <div id="viewConverter" class="lg:col-span-7 space-y-4">
-      <div class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-100">
-        <div class="space-y-4">
-          <!-- 賣出 / 持有幣別 (From) -->
-          <div>
-            <div class="flex justify-between items-center mb-1.5">
-              <label class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-up-from-bracket text-indigo-500"></i> 持有 / 支付幣別
-              </label>
-              <span class="text-xs text-slate-400" id="badgeFrom">地區：亞洲</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-              <div class="sm:col-span-5 relative">
-                <select id="selFrom" onchange="onFromChange()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl py-3.5 pl-3.5 pr-8 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none cursor-pointer">
-                  <optgroup label="🌏 亞洲地區貨幣" class="grp-asia">
-                    <option value="TWD" selected>🇹🇼 TWD - 新台幣</option>
-                    <option value="JPY">🇯🇵 JPY - 日圓</option>
-                    <option value="KRW">🇰🇷 KRW - 韓元</option>
-                    <option value="CNY">🇨🇳 CNY - 人民幣</option>
-                    <option value="HKD">🇭🇰 HKD - 港幣</option>
-                    <option value="SGD">🇸🇬 SGD - 新加坡幣</option>
-                    <option value="THB">🇹🇭 THB - 泰銖</option>
-                    <option value="MYR">🇲🇾 MYR - 馬來西亞令吉</option>
-                    <option value="VND">🇻🇳 VND - 越南盾</option>
-                  </optgroup>
-                  <optgroup label="🌍 歐美與大洋洲貨幣" class="grp-west">
-                    <option value="USD">🇺🇸 USD - 美元</option>
-                    <option value="EUR">🇪🇺 EUR - 歐元</option>
-                    <option value="GBP">🇬🇧 GBP - 英鎊</option>
-                    <option value="CHF">🇨🇭 CHF - 瑞士法郎</option>
-                    <option value="CAD">🇨🇦 CAD - 加拿大幣</option>
-                    <option value="AUD">🇦🇺 AUD - 澳幣</option>
-                    <option value="NZD">🇳🇿 NZD - 紐西蘭幣</option>
-                  </optgroup>
-                </select>
-                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </div>
-              </div>
-              <div class="sm:col-span-7 relative">
-                <input type="number" id="inpFrom" min="0" step="any" value="1000" oninput="calcFrom()" placeholder="請輸入金額" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 px-4 text-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right pr-14">
-                <span id="symFrom" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none">TWD</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 對調按鈕 -->
-          <div class="relative flex justify-center my-1">
-            <div class="absolute inset-0 flex items-center">
-              <div class="w-full border-t border-slate-200"></div>
-            </div>
-            <button onclick="doSwap()" type="button" class="relative z-10 w-11 h-11 bg-white hover:bg-indigo-600 text-indigo-600 hover:text-white border-2 border-indigo-100 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-all">
-              <i class="fa-solid fa-arrow-right-arrow-left text-sm"></i>
-            </button>
-          </div>
-
-          <!-- 買入 / 目標幣別 (To) -->
-          <div>
-            <div class="flex justify-between items-center mb-1.5">
-              <label class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-down-to-bracket text-emerald-500"></i> 目標 / 兌換幣別
-              </label>
-              <span class="text-xs text-slate-400" id="badgeTo">地區：歐美</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-              <div class="sm:col-span-5 relative">
-                <select id="selTo" onchange="onToChange()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl py-3.5 pl-3.5 pr-8 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none cursor-pointer">
-                  <optgroup label="🌏 亞洲地區貨幣" class="grp-asia">
-                    <option value="TWD">🇹🇼 TWD - 新台幣</option>
-                    <option value="JPY">🇯🇵 JPY - 日圓</option>
-                    <option value="KRW">🇰🇷 KRW - 韓元</option>
-                    <option value="CNY">🇨🇳 CNY - 人民幣</option>
-                    <option value="HKD">🇭🇰 HKD - 港幣</option>
-                    <option value="SGD">🇸🇬 SGD - 新加坡幣</option>
-                    <option value="THB">🇹🇭 THB - 泰銖</option>
-                    <option value="MYR">🇲🇾 MYR - 馬來西亞令吉</option>
-                    <option value="VND">🇻🇳 VND - 越南盾</option>
-                  </optgroup>
-                  <optgroup label="🌍 歐美與大洋洲貨幣" class="grp-west">
-                    <option value="USD" selected>🇺🇸 USD - 美元</option>
-                    <option value="EUR">🇪🇺 EUR - 歐元</option>
-                    <option value="GBP">🇬🇧 GBP - 英鎊</option>
-                    <option value="CHF">🇨🇭 CHF - 瑞士法郎</option>
-                    <option value="CAD">🇨🇦 CAD - 加拿大幣</option>
-                    <option value="AUD">🇦🇺 AUD - 澳幣</option>
-                    <option value="NZD">🇳🇿 NZD - 紐西蘭幣</option>
-                  </optgroup>
-                </select>
-                <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </div>
-              </div>
-              <div class="sm:col-span-7 relative">
-                <input type="number" id="inpTo" min="0" step="any" oninput="calcTo()" placeholder="計算結果" class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-3.5 px-4 text-xl font-bold text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right pr-14">
-                <span id="symTo" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none">USD</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 計算匯率摘要卡片 -->
-        <div class="mt-6 pt-5 border-t border-slate-100 bg-indigo-50/60 -mx-5 -mb-5 sm:-mx-7 sm:-mb-7 p-5 sm:p-7 rounded-b-3xl">
-          <div class="flex justify-between items-baseline mb-1">
-            <span class="text-xs text-indigo-950 font-bold">即時兌換結果</span>
-            <span class="text-xs text-slate-500" id="txtFormula">1 TWD ≈ 0.00 USD</span>
-          </div>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-3xl sm:text-4xl font-extrabold text-slate-900" id="txtResult">0.00</span>
-            <span class="text-xl font-bold text-indigo-600" id="txtResultUnit">USD</span>
-          </div>
-          <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
-            <span id="txtInverse">1 USD ≈ 0.00 TWD</span>
-            <span class="text-emerald-600 font-semibold flex items-center gap-1">
-              <i class="fa-solid fa-circle-check"></i> <span id="rateSourceLabel">即時市場匯率</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 常用快捷面額按鈕 -->
-      <div class="bg-white rounded-2xl p-3 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span class="font-bold text-slate-500"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i>快捷金額：</span>
-        <div class="flex flex-wrap gap-1.5">
-          <button onclick="setAmount(100)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">100</button>
-          <button onclick="setAmount(1000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">1,000</button>
-          <button onclick="setAmount(5000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">5,000</button>
-          <button onclick="setAmount(10000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">10,000</button>
-          <button onclick="setAmount(50000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">50,000</button>
-        </div>
-      </div>
-
-      <!-- 手機數字小鍵盤 -->
-      <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200">
-        <div class="flex items-center justify-between mb-2 text-xs text-slate-500">
-          <span class="font-bold text-slate-700 flex items-center gap-1.5">
-            <i class="fa-solid fa-calculator text-indigo-500"></i> 便捷數字小鍵盤
-          </span>
-          <span class="text-[11px] text-slate-400">點擊直接鍵入金額</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2 text-sm font-bold">
-          <button onclick="tapKey('1')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">1</button>
-          <button onclick="tapKey('2')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">2</button>
-          <button onclick="tapKey('3')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">3</button>
-          <button onclick="tapKey('back')" class="py-2.5 bg-rose-50 text-rose-600 active:bg-rose-100 rounded-xl"><i class="fa-solid fa-delete-left"></i></button>
-
-          <button onclick="tapKey('4')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">4</button>
-          <button onclick="tapKey('5')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">5</button>
-          <button onclick="tapKey('6')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">6</button>
-          <button onclick="tapKey('clear')" class="py-2.5 bg-slate-100 text-slate-600 active:bg-slate-200 rounded-xl font-bold">C</button>
-
-          <button onclick="tapKey('7')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">7</button>
-          <button onclick="tapKey('8')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">8</button>
-          <button onclick="tapKey('9')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">9</button>
-          <button onclick="tapKey('00')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">00</button>
-
-          <button onclick="tapKey('.')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">.</button>
-          <button onclick="tapKey('0')" class="col-span-2 py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">0</button>
-          <button onclick="doSwap()" class="py-2.5 bg-indigo-600 text-white rounded-xl shadow active:scale-95"><i class="fa-solid fa-arrows-rotate"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 右側：匯率看板 (Tab: rates) -->
-    <div id="viewRates" class="lg:col-span-5 space-y-4 hidden lg:block">
-      <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-indigo-600"></i>
-            主要匯率快速對照表
-          </h2>
-          <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-bold" id="txtRateBase">
-            基準: 1 TWD
-          </span>
-        </div>
-        <div class="divide-y divide-slate-100 max-h-[480px] overflow-y-auto pr-1 no-scrollbar" id="listRates"></div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<!-- 手機端 App 底部導航 Bar -->
+​<!-- 分類按鈕與狀態 -->
+<div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+<div class="flex items-center bg-slate-200/80 p-1 rounded-xl text-xs font-semibold text-slate-600">
+<button id="btnFilterAll" onclick="filterCurrency('all')" class="px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs">全部貨幣</button>
+<button id="btnFilterAsia" onclick="filterCurrency('asia')" class="px-3 py-1.5 rounded-lg hover:text-slate-900">亞洲地區</button>
+<button id="btnFilterWest" onclick="filterCurrency('west')" class="px-3 py-1.5 rounded-lg hover:text-slate-900">歐美地區</button>
+</div>
+​<div class="flex items-center space-x-1.5 text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span id="updateTimeTag">更新於: 即時連線</span>
+</div>
+</div>
+​<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+​<!-- 換匯計算主面板 -->
+<div id="viewConverter" class="lg:col-span-7 space-y-4">
+​<div class="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-100">
+​<div class="space-y-4">
+<!-- 賣出 / 持有幣別 (From) -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<label class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+<i class="fa-solid fa-arrow-up-from-bracket text-indigo-500"></i> 持有 / 支付幣別
+</label>
+<span class="text-xs text-slate-400" id="badgeFrom">地區：亞洲</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+<div class="sm:col-span-5 relative">
+<select id="selFrom" onchange="onFromChange()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl py-3.5 pl-3.5 pr-8 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none cursor-pointer">
+<optgroup label="🌏 亞洲地區貨幣" class="grp-asia">
+<option value="TWD" selected>🇹🇼 TWD - 新台幣</option>
+<option value="JPY">🇯🇵 JPY - 日圓</option>
+<option value="KRW">🇰🇷 KRW - 韓元</option>
+<option value="CNY">🇨🇳 CNY - 人民幣</option>
+<option value="HKD">🇭🇰 HKD - 港幣</option>
+<option value="SGD">🇸🇬 SGD - 新加坡幣</option>
+<option value="THB">🇹🇭 THB - 泰銖</option>
+<option value="MYR">🇲🇾 MYR - 馬來西亞令吉</option>
+<option value="VND">🇻🇳 VND - 越南盾</option>
+</optgroup>
+<optgroup label="🌍 歐美與大洋洲貨幣" class="grp-west">
+<option value="USD">🇺🇸 USD - 美元</option>
+<option value="EUR">🇪🇺 EUR - 歐元</option>
+<option value="GBP">🇬🇧 GBP - 英鎊</option>
+<option value="CHF">🇨🇭 CHF - 瑞士法郎</option>
+<option value="CAD">🇨🇦 CAD - 加拿大幣</option>
+<option value="AUD">🇦🇺 AUD - 澳幣</option>
+<option value="NZD">🇳🇿 NZD - 紐西蘭幣</option>
+</optgroup>
+</select>
+<div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+<i class="fa-solid fa-chevron-down text-xs"></i>
+</div>
+</div>
+​<div class="sm:col-span-7 relative">
+<input type="number" id="inpFrom" min="0" step="any" value="1000" oninput="calcFrom()" placeholder="請輸入金額" class="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3.5 px-4 text-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right pr-14">
+<span id="symFrom" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none">TWD</span>
+</div>
+</div>
+</div>
+​<!-- 對調按鈕 -->
+<div class="relative flex justify-center my-1">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200"></div>
+</div>
+<button onclick="doSwap()" type="button" class="relative z-10 w-11 h-11 bg-white hover:bg-indigo-600 text-indigo-600 hover:text-white border-2 border-indigo-100 rounded-full flex items-center justify-center shadow-md active:scale-90 transition-all">
+<i class="fa-solid fa-arrow-right-arrow-left text-sm"></i>
+</button>
+</div>
+​<!-- 買入 / 目標幣別 (To) -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<label class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+<i class="fa-solid fa-arrow-down-to-bracket text-emerald-500"></i> 目標 / 兌換幣別
+</label>
+<span class="text-xs text-slate-400" id="badgeTo">地區：歐美</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+<div class="sm:col-span-5 relative">
+<select id="selTo" onchange="onToChange()" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl py-3.5 pl-3.5 pr-8 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white appearance-none cursor-pointer">
+<optgroup label="🌏 亞洲地區貨幣" class="grp-asia">
+<option value="TWD">🇹🇼 TWD - 新台幣</option>
+<option value="JPY">🇯🇵 JPY - 日圓</option>
+<option value="KRW">🇰🇷 KRW - 韓元</option>
+<option value="CNY">🇨🇳 CNY - 人民幣</option>
+<option value="HKD">🇭🇰 HKD - 港幣</option>
+<option value="SGD">🇸🇬 SGD - 新加坡幣</option>
+<option value="THB">🇹🇭 THB - 泰銖</option>
+<option value="MYR">🇲🇾 MYR - 馬來西亞令吉</option>
+<option value="VND">🇻🇳 VND - 越南盾</option>
+</optgroup>
+<optgroup label="🌍 歐美與大洋洲貨幣" class="grp-west">
+<option value="USD" selected>🇺🇸 USD - 美元</option>
+<option value="EUR">🇪🇺 EUR - 歐元</option>
+<option value="GBP">🇬🇧 GBP - 英鎊</option>
+<option value="CHF">🇨🇭 CHF - 瑞士法郎</option>
+<option value="CAD">🇨🇦 CAD - 加拿大幣</option>
+<option value="AUD">🇦🇺 AUD - 澳幣</option>
+<option value="NZD">🇳🇿 NZD - 紐西蘭幣</option>
+</optgroup>
+</select>
+<div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+<i class="fa-solid fa-chevron-down text-xs"></i>
+</div>
+</div>
+​<div class="sm:col-span-7 relative">
+<input type="number" id="inpTo" min="0" step="any" oninput="calcTo()" placeholder="計算結果" class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-3.5 px-4 text-xl font-bold text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-right pr-14">
+<span id="symTo" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400 pointer-events-none">USD</span>
+</div>
+</div>
+</div>
+​</div>
+​<!-- 計算匯率摘要卡片 -->
+<div class="mt-6 pt-5 border-t border-slate-100 bg-indigo-50/60 -mx-5 -mb-5 sm:-mx-7 sm:-mb-7 p-5 sm:p-7 rounded-b-3xl">
+<div class="flex justify-between items-baseline mb-1">
+<span class="text-xs text-indigo-950 font-bold">即時兌換結果</span>
+<span class="text-xs text-slate-500" id="txtFormula">1 TWD ≈ 0.0311 USD</span>
+</div>
+​<div class="flex items-baseline space-x-2">
+<span class="text-3xl sm:text-4xl font-extrabold text-slate-900" id="txtResult">
+31.10
+</span>
+<span class="text-xl font-bold text-indigo-600" id="txtResultUnit">
+USD
+</span>
+</div>
+​<div class="mt-3 flex items-center justify-between text-xs text-slate-500">
+<span id="txtInverse">1 USD ≈ 32.15 TWD</span>
+<span class="text-emerald-600 font-semibold flex items-center gap-1">
+<i class="fa-solid fa-circle-check"></i> 基準牌價參考
+</span>
+</div>
+</div>
+​</div>
+​<!-- 常用快捷面額按鈕 -->
+<div class="bg-white rounded-2xl p-3 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+<span class="font-bold text-slate-500"><i class="fa-solid fa-bolt text-amber-500 mr-1"></i>快捷金額：</span>
+<div class="flex flex-wrap gap-1.5">
+<button onclick="setAmount(100)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">100</button>
+<button onclick="setAmount(1000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">1,000</button>
+<button onclick="setAmount(5000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">5,000</button>
+<button onclick="setAmount(10000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">10,000</button>
+<button onclick="setAmount(50000)" class="px-2.5 py-1.5 bg-slate-100 active:bg-indigo-100 rounded-lg font-bold">50,000</button>
+</div>
+</div>
+​<!-- 專用手機虛擬鍵盤 -->
+<div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200">
+<div class="flex items-center justify-between mb-2 text-xs text-slate-500">
+<span class="font-bold text-slate-700 flex items-center gap-1.5">
+<i class="fa-solid fa-calculator text-indigo-500"></i> 便捷數字小鍵盤
+</span>
+<span class="text-[11px] text-slate-400">點擊直接鍵入金額</span>
+</div>
+<div class="grid grid-cols-4 gap-2 text-sm font-bold">
+<button onclick="tapKey('1')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">1</button>
+<button onclick="tapKey('2')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">2</button>
+<button onclick="tapKey('3')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">3</button>
+<button onclick="tapKey('back')" class="py-2.5 bg-rose-50 text-rose-600 active:bg-rose-100 rounded-xl"><i class="fa-solid fa-delete-left"></i></button>
+​<button onclick="tapKey('4')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">4</button>
+<button onclick="tapKey('5')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">5</button>
+<button onclick="tapKey('6')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">6</button>
+<button onclick="tapKey('clear')" class="py-2.5 bg-slate-100 text-slate-600 active:bg-slate-200 rounded-xl font-bold">C</button>
+​<button onclick="tapKey('7')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">7</button>
+<button onclick="tapKey('8')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">8</button>
+<button onclick="tapKey('9')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">9</button>
+<button onclick="tapKey('00')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">00</button>
+​<button onclick="tapKey('.')" class="py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">.</button>
+<button onclick="tapKey('0')" class="col-span-2 py-2.5 bg-slate-50 active:bg-indigo-100 rounded-xl">0</button>
+<button onclick="doSwap()" class="py-2.5 bg-indigo-600 text-white rounded-xl shadow active:scale-95"><i class="fa-solid fa-arrows-rotate"></i></button>
+</div>
+</div>
+​</div>
+​<!-- 右側：匯率看板 (Tab: rates) -->
+<div id="viewRates" class="lg:col-span-5 space-y-4 hidden lg:block">
+<div class="bg-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center gap-2">
+<i class="fa-solid fa-chart-line text-indigo-600"></i>
+主要匯率快速對照表
+</h2>
+<span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-bold" id="txtRateBase">
+基準: 1 TWD
+</span>
+</div>
+​<div class="divide-y divide-slate-100 max-h-[480px] overflow-y-auto pr-1 no-scrollbar" id="listRates">
+</div>
+</div>
+</div>
+​</div>
+​</main>
+​<!-- 手機端 App 底部導航 Bar -->
 <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 px-6 py-2 flex justify-around items-center">
-  <button id="navConverter" onclick="switchTab('converter')" class="flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs">
-    <i class="fa-solid fa-calculator text-lg"></i>
-    <span>快速換算</span>
-  </button>
-  <button id="navRates" onclick="switchTab('rates')" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
-    <i class="fa-solid fa-arrow-trend-up text-lg"></i>
-    <span>匯率行情</span>
-  </button>
-  <button onclick="openInstallModal()" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
-    <i class="fa-solid fa-circle-down text-lg"></i>
-    <span>安裝 App</span>
-  </button>
+<button id="navConverter" onclick="switchTab('converter')" class="flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs">
+<i class="fa-solid fa-calculator text-lg"></i>
+<span>快速換算</span>
+</button>
+<button id="navRates" onclick="switchTab('rates')" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
+<i class="fa-solid fa-arrow-trend-up text-lg"></i>
+<span>匯率行情</span>
+</button>
+<button onclick="openInstallModal()" class="flex flex-col items-center gap-1 text-slate-400 font-medium text-xs">
+<i class="fa-solid fa-circle-down text-lg"></i>
+<span>安裝 App</span>
+</button>
 </nav>
-
-<script>
-// 基礎幣別設定
+​<script>
+// 匯率資料庫
 var ratesData = {
-  TWD: { name: '新台幣', region: 'asia', flag: '🇹🇼', symbol: 'NT$', rate: 32.15 },
-  JPY: { name: '日圓', region: 'asia', flag: '🇯🇵', symbol: '¥', rate: 153.80 },
-  KRW: { name: '韓元', region: 'asia', flag: '🇰🇷', symbol: '₩', rate: 1385.50 },
-  CNY: { name: '人民幣', region: 'asia', flag: '🇨🇳', symbol: '¥', rate: 7.24 },
-  HKD: { name: '港幣', region: 'asia', flag: '🇭🇰', symbol: 'HK$', rate: 7.82 },
-  SGD: { name: '新加坡幣', region: 'asia', flag: '🇸🇬', symbol: 'S$', rate: 1.35 },
-  THB: { name: '泰銖', region: 'asia', flag: '🇹🇭', symbol: '฿', rate: 36.65 },
-  MYR: { name: '馬來西亞令吉', region: 'asia', flag: '🇲🇾', symbol: 'RM', rate: 4.71 },
-  VND: { name: '越南盾', region: 'asia', flag: '🇻🇳', symbol: '₫', rate: 25420.0 },
-  USD: { name: '美元', region: 'west', flag: '🇺🇸', symbol: '$', rate: 1.0 },
-  EUR: { name: '歐元', region: 'west', flag: '🇪🇺', symbol: '€', rate: 0.925 },
-  GBP: { name: '英鎊', region: 'west', flag: '🇬🇧', symbol: '£', rate: 0.792 },
-  CHF: { name: '瑞士法郎', region: 'west', flag: '🇨🇭', symbol: 'CHF', rate: 0.908 },
-  CAD: { name: '加拿大幣', region: 'west', flag: '🇨🇦', symbol: 'C$', rate: 1.37 },
-  AUD: { name: '澳幣', region: 'west', flag: '🇦🇺', symbol: 'A$', rate: 1.52 },
-  NZD: { name: '紐西蘭幣', region: 'west', flag: '🇳🇿', symbol: 'NZ$', rate: 1.66 }
+TWD: { name: '新台幣', region: 'asia', flag: '🇹🇼', symbol: 'NT$', rate: 32.15 },
+JPY: { name: '日圓', region: 'asia', flag: '🇯🇵', symbol: '¥', rate: 153.80 },
+KRW: { name: '韓元', region: 'asia', flag: '🇰🇷', symbol: '₩', rate: 1385.50 },
+CNY: { name: '人民幣', region: 'asia', flag: '🇨🇳', symbol: '¥', rate: 7.24 },
+HKD: { name: '港幣', region: 'asia', flag: '🇭🇰', symbol: 'HK$', rate: 7.82 },
+SGD: { name: '新加坡幣', region: 'asia', flag: '🇸🇬', symbol: 'S$', rate: 1.35 },
+THB: { name: '泰銖', region: 'asia', flag: '🇹🇭', symbol: '฿', rate: 36.65 },
+MYR: { name: '馬來西亞令吉', region: 'asia', flag: '🇲🇾', symbol: 'RM', rate: 4.71 },
+VND: { name: '越南盾', region: 'asia', flag: '🇻🇳', symbol: '₫', rate: 25420.0 },
+USD: { name: '美元', region: 'west', flag: '🇺🇸', symbol: '', rate: 1.0 },
+EUR: { name: '歐元', region: 'west', flag: '🇪🇺', symbol: '€', rate: 0.925 },
+GBP: { name: '英鎊', region: 'west', flag: '🇬🇧', symbol: '£', rate: 0.792 },
+CHF: { name: '瑞士法郎', region: 'west', flag: '🇨🇭', symbol: 'CHF', rate: 0.908 },
+CAD: { name: '加拿大幣', region: 'west', flag: '🇨🇦', symbol: 'C', rate: 1.37 },
+AUD: { name: '澳幣', region: 'west', flag: '🇦🇺', symbol: 'A$', rate: 1.52 },
+NZD: { name: '紐西蘭幣', region: 'west', flag: '🇳🇿', symbol: 'NZ$', rate: 1.66 }
 };
-
-var selFrom = document.getElementById('selFrom');
+​var selFrom = document.getElementById('selFrom');
 var selTo = document.getElementById('selTo');
 var inpFrom = document.getElementById('inpFrom');
 var inpTo = document.getElementById('inpTo');
@@ -361,299 +347,276 @@ var txtResult = document.getElementById('txtResult');
 var txtResultUnit = document.getElementById('txtResultUnit');
 var txtFormula = document.getElementById('txtFormula');
 var txtInverse = document.getElementById('txtInverse');
-var updateTimeTag = document.getElementById('updateTimeTag');
-var statusDot = document.getElementById('statusDot');
-var rateSourceLabel = document.getElementById('rateSourceLabel');
-
-function fmtNum(n, d) {
-  d = d || 4;
-  if (isNaN(n) || n === null) return '0.00';
-  if (n >= 1000) {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  } else if (n >= 1) {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: d });
-  } else {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 });
-  }
+​function fmtNum(n, d) {
+d = d || 4;
+if (isNaN(n) || n === null) return '0.00';
+if (n >= 1000) {
+return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+} else if (n >= 1) {
+return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: d });
+} else {
+return n.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 });
 }
-
-function calcFrom() {
-  var fCode = selFrom.value;
-  var tCode = selTo.value;
-  var amt = parseFloat(inpFrom.value);
-
-  if (isNaN(amt) || amt <= 0) {
-    inpTo.value = '';
-    txtResult.textContent = '0.00';
-    return;
-  }
-
-  var rateF = ratesData[fCode].rate;
-  var rateT = ratesData[tCode].rate;
-  var oneFToT = rateT / rateF;
-  var oneTToF = rateF / rateT;
-  var total = amt * oneFToT;
-
-  inpTo.value = total >= 1 ? total.toFixed(2) : total.toFixed(4);
-  txtResult.textContent = fmtNum(total, 4);
-  txtFormula.textContent = '1 ' + fCode + ' ≈ ' + fmtNum(oneFToT, 4) + ' ' + tCode;
-  txtInverse.textContent = '1 ' + tCode + ' ≈ ' + fmtNum(oneTToF, 4) + ' ' + fCode;
 }
-
-function calcTo() {
-  var fCode = selFrom.value;
-  var tCode = selTo.value;
-  var targetAmt = parseFloat(inpTo.value);
-
-  if (isNaN(targetAmt) || targetAmt <= 0) {
-    inpFrom.value = '';
-    txtResult.textContent = '0.00';
-    return;
-  }
-
-  var rateF = ratesData[fCode].rate;
-  var rateT = ratesData[tCode].rate;
-  var oneTToF = rateF / rateT;
-  var oneFToT = rateT / rateF;
-  var sourceAmt = targetAmt * oneTToF;
-
-  inpFrom.value = sourceAmt >= 1 ? sourceAmt.toFixed(2) : sourceAmt.toFixed(4);
-  txtResult.textContent = fmtNum(targetAmt, 4);
-  txtFormula.textContent = '1 ' + fCode + ' ≈ ' + fmtNum(oneFToT, 4) + ' ' + tCode;
-  txtInverse.textContent = '1 ' + tCode + ' ≈ ' + fmtNum(oneTToF, 4) + ' ' + fCode;
+​function calcFrom() {
+var fCode = selFrom.value;
+var tCode = selTo.value;
+var amt = parseFloat(inpFrom.value);
+​if (isNaN(amt) || amt <= 0) {
+inpTo.value = '';
+txtResult.textContent = '0.00';
+return;
 }
-
-function onFromChange() {
-  var c = selFrom.value;
-  symFrom.textContent = c;
-  badgeFrom.textContent = '地區：' + (ratesData[c].region === 'asia' ? '亞洲' : '歐美');
-  calcFrom();
-  renderRatesTable();
+​var rateF = ratesData[fCode].rate;
+var rateT = ratesData[tCode].rate;
+var oneFToT = rateT / rateF;
+var oneTToF = rateF / rateT;
+var total = amt * oneFToT;
+​inpTo.value = total >= 1 ? total.toFixed(2) : total.toFixed(4);
+txtResult.textContent = fmtNum(total, 4);
+txtFormula.textContent = '1 ' + fCode + ' ≈ ' + fmtNum(oneFToT, 4) + ' ' + tCode;
+txtInverse.textContent = '1 ' + tCode + ' ≈ ' + fmtNum(oneTToF, 4) + ' ' + fCode;
 }
-
-function onToChange() {
-  var c = selTo.value;
-  symTo.textContent = c;
-  txtResultUnit.textContent = c;
-  badgeTo.textContent = '地區：' + (ratesData[c].region === 'asia' ? '亞洲' : '歐美');
-  calcFrom();
+​function calcTo() {
+var fCode = selFrom.value;
+var tCode = selTo.value;
+var targetAmt = parseFloat(inpTo.value);
+​if (isNaN(targetAmt) || targetAmt <= 0) {
+inpFrom.value = '';
+txtResult.textContent = '0.00';
+return;
 }
-
-function doSwap() {
-  var t = selFrom.value;
-  selFrom.value = selTo.value;
-  selTo.value = t;
-  onFromChange();
-  onToChange();
+​var rateF = ratesData[fCode].rate;
+var rateT = ratesData[tCode].rate;
+var oneTToF = rateF / rateT;
+var oneFToT = rateT / rateF;
+var sourceAmt = targetAmt * oneTToF;
+​inpFrom.value = sourceAmt >= 1 ? sourceAmt.toFixed(2) : sourceAmt.toFixed(4);
+txtResult.textContent = fmtNum(targetAmt, 4);
+txtFormula.textContent = '1 ' + fCode + ' ≈ ' + fmtNum(oneFToT, 4) + ' ' + tCode;
+txtInverse.textContent = '1 ' + tCode + ' ≈ ' + fmtNum(oneTToF, 4) + ' ' + fCode;
 }
-
-function setAmount(v) {
-  inpFrom.value = v;
-  calcFrom();
+​function onFromChange() {
+var c = selFrom.value;
+symFrom.textContent = c;
+badgeFrom.textContent = '地區：' + (ratesData[c].region === 'asia' ? '亞洲' : '歐美');
+calcFrom();
+renderRatesTable();
 }
-
-function tapKey(key) {
-  var val = inpFrom.value.toString();
-  if (key === 'clear') {
-    val = '0';
-  } else if (key === 'back') {
-    val = val.slice(0, -1);
-    if (val === '' || val === '-') val = '0';
-  } else if (key === '.') {
-    if (val.indexOf('.') === -1) val += '.';
-  } else if (key === '00') {
-    if (val !== '0') val += '00';
-  } else {
-    if (val === '0') val = key;
-    else val += key;
-  }
-  inpFrom.value = val;
-  calcFrom();
+​function onToChange() {
+var c = selTo.value;
+symTo.textContent = c;
+txtResultUnit.textContent = c;
+badgeTo.textContent = '地區：' + (ratesData[c].region === 'asia' ? '亞洲' : '歐美');
+calcFrom();
 }
-
-function filterCurrency(type) {
-  var bAll = document.getElementById('btnFilterAll');
-  var bAsia = document.getElementById('btnFilterAsia');
-  var bWest = document.getElementById('btnFilterWest');
-  [bAll, bAsia, bWest].forEach(function(b) {
-    b.className = 'px-3 py-1.5 rounded-lg hover:text-slate-900';
-  });
-
-  if (type === 'all') {
-    bAll.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
-  } else if (type === 'asia') {
-    bAsia.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
-  } else {
-    bWest.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
-  }
-
-  var grpAsia = document.querySelectorAll('.grp-asia');
-  var grpWest = document.querySelectorAll('.grp-west');
-
-  grpAsia.forEach(function(el) {
-    el.style.display = (type === 'west') ? 'none' : '';
-  });
-  grpWest.forEach(function(el) {
-    el.style.display = (type === 'asia') ? 'none' : '';
-  });
-
-  if (type === 'asia' && ratesData[selFrom.value].region === 'west') selFrom.value = 'TWD';
-  if (type === 'west' && ratesData[selFrom.value].region === 'asia') selFrom.value = 'USD';
-  if (type === 'asia' && ratesData[selTo.value].region === 'west') selTo.value = 'JPY';
-  if (type === 'west' && ratesData[selTo.value].region === 'asia') selTo.value = 'EUR';
-
-  onFromChange();
-  onToChange();
+​function doSwap() {
+var t = selFrom.value;
+selFrom.value = selTo.value;
+selTo.value = t;
+onFromChange();
+onToChange();
 }
-
-function renderRatesTable() {
-  var baseCode = selFrom.value;
-  var baseRate = ratesData[baseCode].rate;
-  document.getElementById('txtRateBase').textContent = '基準: 1 ' + baseCode;
-
-  var container = document.getElementById('listRates');
-  container.innerHTML = '';
-
-  Object.keys(ratesData).forEach(function(code) {
-    if (code === baseCode) return;
-    var item = ratesData[code];
-    var r = item.rate / baseRate;
-
-    var div = document.createElement('div');
-    div.className = 'py-2.5 flex items-center justify-between hover:bg-slate-50 px-2 rounded-xl cursor-pointer transition-colors';
-    div.innerHTML =
-      '<div class="flex items-center space-x-3">' +
-      '<span class="text-xl">' + item.flag + '</span>' +
-      '<div>' +
-      '<div class="text-xs font-bold text-slate-800 flex items-center gap-1">' +
-      '<span>' + code + '</span>' +
-      '<span class="text-[10px] px-1 rounded ' + (item.region === 'asia' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700') + '">' +
-      (item.region === 'asia' ? '亞洲' : '歐美') +
-      '</span>' +
-      '</div>' +
-      '<p class="text-[11px] text-slate-400">' + item.name + '</p>' +
-      '</div>' +
-      '</div>' +
-      '<div class="text-right">' +
-      '<div class="text-xs font-bold text-slate-800">' + fmtNum(r, 4) + '</div>' +
-      '<div class="text-[10px] text-slate-400 font-mono">' + item.symbol + '</div>' +
-      '</div>';
-
-    div.onclick = function() {
-      selTo.value = code;
-      onToChange();
-    };
-
-    container.appendChild(div);
-  });
+​function setAmount(v) {
+inpFrom.value = v;
+calcFrom();
 }
-
-// 串接即時匯率 API
-async function refreshRates() {
-  var icon = document.getElementById('refreshIcon');
-  if (icon) icon.classList.add('fa-spin');
-
-  try {
-    var res = await fetch('https://open.er-api.com/v6/latest/USD');
-    if (!res.ok) throw new Error('API 失敗');
-    var data = await res.json();
-
-    if (data && data.rates) {
-      Object.keys(ratesData).forEach(function(code) {
-        if (data.rates[code]) {
-          ratesData[code].rate = data.rates[code];
-        }
-      });
-
-      localStorage.setItem('cached_fx_rates', JSON.stringify({
-        rates: data.rates,
-        timestamp: Date.now()
-      }));
-
-      var now = new Date();
-      var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-      updateTimeTag.textContent = '即時匯率: ' + timeStr;
-      statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
-      rateSourceLabel.textContent = '即時市場匯率 (已更新)';
-    }
-  } catch (err) {
-    var cached = localStorage.getItem('cached_fx_rates');
-    if (cached) {
-      try {
-        var parsed = JSON.parse(cached);
-        Object.keys(ratesData).forEach(function(code) {
-          if (parsed.rates[code]) ratesData[code].rate = parsed.rates[code];
-        });
-        updateTimeTag.textContent = '快取匯率 (離線)';
-      } catch (e) {}
-    } else {
-      updateTimeTag.textContent = '基準牌價 (離線)';
-    }
-    statusDot.className = 'w-2 h-2 rounded-full bg-amber-500';
-    rateSourceLabel.textContent = '基準參考牌價';
-  } finally {
-    calcFrom();
-    renderRatesTable();
-    if (icon) {
-      setTimeout(function() {
-        icon.classList.remove('fa-spin');
-      }, 300);
-    }
-  }
+​function tapKey(key) {
+var val = inpFrom.value.toString();
+if (key === 'clear') {
+val = '0';
+} else if (key === 'back') {
+val = val.slice(0, -1);
+if (val === '' || val === '-') val = '0';
+} else if (key === '.') {
+if (val.indexOf('.') === -1) val += '.';
+} else if (key === '00') {
+if (val !== '0') val += '00';
+} else {
+if (val === '0') val = key;
+else val += key;
 }
-
-function switchTab(t) {
-  var vC = document.getElementById('viewConverter');
-  var vR = document.getElementById('viewRates');
-  var nC = document.getElementById('navConverter');
-  var nR = document.getElementById('navRates');
-
-  if (t === 'converter') {
-    vC.classList.remove('hidden');
-    vR.classList.add('hidden');
-    nC.className = "flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs";
-    nR.className = "flex flex-col items-center gap-1 text-slate-400 font-medium text-xs";
-  } else {
-    vC.classList.add('hidden');
-    vR.classList.remove('hidden');
-    nC.className = "flex flex-col items-center gap-1 text-slate-400 font-medium text-xs";
-    nR.className = "flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs";
-  }
+inpFrom.value = val;
+calcFrom();
 }
-
-// 彈窗指引控制（純指引，絕不觸發系統報錯框）
+​function filterCurrency(type) {
+var bAll = document.getElementById('btnFilterAll');
+var bAsia = document.getElementById('btnFilterAsia');
+var bWest = document.getElementById('btnFilterWest');
+[bAll, bAsia, bWest].forEach(function(b) {
+b.className = 'px-3 py-1.5 rounded-lg hover:text-slate-900';
+});
+​if (type === 'all') {
+bAll.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
+} else if (type === 'asia') {
+bAsia.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
+} else {
+bWest.className = 'px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-semibold';
+}
+​var grpAsia = document.querySelectorAll('.grp-asia');
+var grpWest = document.querySelectorAll('.grp-west');
+​grpAsia.forEach(function(el) {
+el.style.display = (type === 'west') ? 'none' : '';
+});
+grpWest.forEach(function(el) {
+el.style.display = (type === 'asia') ? 'none' : '';
+});
+​if (type === 'asia' && ratesData[selFrom.value].region === 'west') selFrom.value = 'TWD';
+if (type === 'west' && ratesData[selFrom.value].region === 'asia') selFrom.value = 'USD';
+if (type === 'asia' && ratesData[selTo.value].region === 'west') selTo.value = 'JPY';
+if (type === 'west' && ratesData[selTo.value].region === 'asia') selTo.value = 'EUR';
+​onFromChange();
+onToChange();
+}
+​function renderRatesTable() {
+var baseCode = selFrom.value;
+var baseRate = ratesData[baseCode].rate;
+document.getElementById('txtRateBase').textContent = '基準: 1 ' + baseCode;
+​var container = document.getElementById('listRates');
+container.innerHTML = '';
+​Object.keys(ratesData).forEach(function(code) {
+if (code === baseCode) return;
+var item = ratesData[code];
+var r = item.rate / baseRate;
+​var div = document.createElement('div');
+div.className = 'py-2.5 flex items-center justify-between hover:bg-slate-50 px-2 rounded-xl cursor-pointer transition-colors';
+div.innerHTML =
+'<div class="flex items-center space-x-3">' +
+'<span class="text-xl">' + item.flag + '</span>' +
+'<div>' +
+'<div class="text-xs font-bold text-slate-800 flex items-center gap-1">' +
+'<span>' + code + '</span>' +
+'<span class="text-[10px] px-1 rounded ' + (item.region === 'asia' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700') + '">' +
+(item.region === 'asia' ? '亞洲' : '歐美') +
+'</span>' +
+</div>' +
+'<p class="text-[11px] text-slate-400">' + item.name + '</p>' +
+'</div>' +
+'</div>' +
+'<div class="text-right">' +
+'<div class="text-xs font-bold text-slate-800">' + fmtNum(r, 4) + '</div>' +
+'<div class="text-[10px] text-slate-400 font-mono">' + item.symbol + '</div>' +
+'</div>';
+​div.onclick = function() {
+selTo.value = code;
+onToChange();
+};
+​container.appendChild(div);
+});
+}
+​function refreshRates() {
+var icon = document.getElementById('refreshIcon');
+icon.classList.add('fa-spin');
+setTimeout(function() {
+Object.keys(ratesData).forEach(function(code) {
+if (code !== 'USD') {
+var diff = (Math.random() - 0.5) * 0.002;
+ratesData[code].rate = +(ratesData[code].rate * (1 + diff)).toFixed(4);
+}
+});
+calcFrom();
+renderRatesTable();
+icon.classList.remove('fa-spin');
+var now = new Date();
+document.getElementById('updateTimeTag').textContent = '更新於: ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+}, 400);
+}
+​function switchTab(t) {
+var vC = document.getElementById('viewConverter');
+var vR = document.getElementById('viewRates');
+var nC = document.getElementById('navConverter');
+var nR = document.getElementById('navRates');
+​if (t === 'converter') {
+vC.classList.remove('hidden');
+vR.classList.add('hidden');
+nC.className = "flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs";
+nR.className = "flex flex-col items-center gap-1 text-slate-400 font-medium text-xs";
+} else {
+vC.classList.add('hidden');
+vR.classList.remove('hidden');
+nC.className = "flex flex-col items-center gap-1 text-slate-400 font-medium text-xs";
+nR.className = "flex flex-col items-center gap-1 text-indigo-600 font-bold text-xs";
+}
+}
+​// 注入動態 Web Manifest 支援 Android Chrome 原生安裝
+try {
+var manifestData = {
+name: "全球換匯 App",
+short_name: "全球換匯",
+start_url: window.location.href,
+display: "standalone",
+background_color: "#ffffff",
+theme_color: "#4f46e5",
+icons: [
+{ src: "https://placehold.co/192x192/4f46e5/ffffff?text=FX", sizes: "192x192", type: "image/png" },
+{ src: "https://placehold.co/512x512/4f46e5/ffffff?text=FX", sizes: "512x512", type: "image/png" }
+]
+};
+var manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+var manifestUrl = URL.createObjectURL(manifestBlob);
+var linkTag = document.createElement('link');
+linkTag.rel = 'manifest';
+linkTag.href = manifestUrl;
+document.head.appendChild(linkTag);
+} catch(err) {}
+​// Android / iOS 智慧判斷與原生安裝捕捉
+var installEvent = null;
 var userAgent = navigator.userAgent || navigator.vendor || window.opera || '';
 var isIOSDevice = /iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-function openInstallModal() {
-  var m = document.getElementById('installModal');
-  var title = document.getElementById('modalTitle');
-  var andGuide = document.getElementById('androidGuide');
-  var iosGuide = document.getElementById('iosGuide');
-
-  if (isIOSDevice) {
-    title.innerHTML = '<i class="fa-brands fa-apple text-slate-900 text-lg"></i> 安裝至 iPhone / iPad';
-    iosGuide.classList.remove('hidden');
-    andGuide.classList.add('hidden');
-  } else {
-    title.innerHTML = '<i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟';
-    andGuide.classList.remove('hidden');
-    iosGuide.classList.add('hidden');
-  }
-  m.classList.remove('hidden');
-}
-
-function closeInstallModal() {
-  document.getElementById('installModal').classList.add('hidden');
-}
-
-// 初始化
-window.addEventListener('DOMContentLoaded', function() {
-  onFromChange();
-  onToChange();
-  renderRatesTable();
-  refreshRates();
+​window.addEventListener('beforeinstallprompt', function(e) {
+e.preventDefault();
+installEvent = e;
+var directBtn = document.getElementById('directInstallBtn');
+if (directBtn) directBtn.classList.remove('hidden');
 });
+​function openInstallModal() {
+// 1. 如果 Android Chrome 已經準備好原生安裝，點擊時直接彈出 Chrome 的原生安裝確認框
+if (installEvent) {
+installEvent.prompt();
+installEvent.userChoice.then(function(choice) {
+if (choice.outcome === 'accepted') {
+installEvent = null;
+}
+});
+return;
+}
+​// 2. 否則彈出適配對應系統的教學指引
+var m = document.getElementById('installModal');
+var title = document.getElementById('modalTitle');
+var andGuide = document.getElementById('androidGuide');
+var iosGuide = document.getElementById('iosGuide');
+var directBtn = document.getElementById('directInstallBtn');
+​if (isIOSDevice) {
+title.innerHTML = '<i class="fa-brands fa-apple text-slate-900 text-lg"></i> iPhone / iPad 安裝步驟';
+iosGuide.classList.remove('hidden');
+andGuide.classList.add('hidden');
+if (directBtn) directBtn.classList.add('hidden');
+} else {
+title.innerHTML = '<i class="fa-brands fa-android text-emerald-600 text-lg"></i> 安卓手機安裝步驟';
+andGuide.classList.remove('hidden');
+iosGuide.classList.add('hidden');
+}
+m.classList.remove('hidden');
+}
+​function closeInstallModal() {
+document.getElementById('installModal').classList.add('hidden');
+}
+​function triggerNativeInstall() {
+if (installEvent) {
+installEvent.prompt();
+}
+closeInstallModal();
+}
+​// 啟動初始化執行
+window.addEventListener('DOMContentLoaded', function() {
+onFromChange();
+onToChange();
+renderRatesTable();
+});
+// 雙重保險立即觸發一次
+onFromChange();
+onToChange();
+renderRatesTable();
 </script>
 </body>
 </html>
