@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#4f46e5">
 ​<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Font Awesome 圖示 -->
+<!-- Font Awesome 圖示庫 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 ​<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -85,6 +85,9 @@ scrollbar-width: none;
 </div>
 ​<!-- iOS 安裝指引 -->
 <div id="iosGuide" class="text-xs text-slate-600 space-y-3 hidden">
+<div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-2.5 rounded-xl font-medium">
+iPhone 請使用 Safari 瀏覽器依照以下步驟加入：
+</div>
 <p class="flex items-center gap-2">
 <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">1</span>
 點擊 Safari 底部 <strong>分享按鈕 (<i class="fa-solid fa-arrow-up-from-bracket"></i>)</strong>。
@@ -604,10 +607,16 @@ installEvent.prompt();
 }
 closeInstallModal();
 }
-​// 啟動初始化
+​// 啟動初始化執行
+window.addEventListener('DOMContentLoaded', function() {
+onFromChange();
+onToChange();
+renderRatesTable();
+});
+// 雙重保險立即觸發一次
 onFromChange();
 onToChange();
 renderRatesTable();
 </script>
 </body>
-  </html>
+</html>
